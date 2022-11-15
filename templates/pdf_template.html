@@ -1,0 +1,83 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hi</title>
+    <style type="text/css">
+       body {
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        text-align: center;
+       }
+       .table-1 {
+        text-align: center;
+        width: 100%;
+        border-collapse: collapse;
+        }
+        td, th {
+        padding: 5px;
+        border: 1px solid black;
+       }
+       .img {
+        width: 100%;
+       }
+       .table-2, .table-3 {
+        width: 48%;
+        text-align: center;
+        border-collapse: collapse;
+        display: inline-block;
+       }
+       .table-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+  </style>
+</head>
+<body>
+    <h1>"Аналитика по зарплатам и городам для профессии {{name}}"</h1>
+    <img class="img" src={{path}} alt="">
+    <h2>Статистика по годам</h2>
+    <table class="table-1">
+        <tr>
+            <th>Год</th>
+            <th>Средняя зарплата</th>
+            <th>Средняя зарплата - {{name}}</th>
+            <th>Количество вакансий</th>
+            <th>Количество вакансий - {{name}}</th>
+        </tr>
+        {% for dt in stats %}
+            <tr>
+                {% for dt2 in dt %}
+                    <td>{{dt2}}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </table>
+    <h2>Статистика по городам</h2>
+    <div class="table-container">
+        <table class="table-2">
+            <tr>
+                <th>Город</th>
+                <th>Уровень зарплат</th>
+            </tr>
+            {% for key in stats2.keys() %}
+                <tr>
+                    <td>{{key}}</td>
+                    <td>{{stats2[key]}}</td>
+                </tr>
+            {% endfor %}
+        </table>
+        <table class="table-3">
+            <tr>
+                <th>Город</th>
+                <th>Доля вакансий</th>
+            </tr>
+            {% for key in stats3.keys() %}
+                <tr>
+                    <td>{{key}}</td>
+                    <td>{{stats3[key]}}%</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
