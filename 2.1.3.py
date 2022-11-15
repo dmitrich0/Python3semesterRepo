@@ -113,8 +113,6 @@ class InputConnect:
         dataset = DataSet(self.file_name, self.vacancy_name)
         salary_by_year, vacs_per_year, salary_by_vac, count_by_vac, salary_by_city, city_percents = \
             dataset.get_statistics()
-        dataset.print_statistic(salary_by_year, vacs_per_year, salary_by_vac,
-                                count_by_vac, salary_by_city, city_percents)
         report = Report(self.vacancy_name, salary_by_year, vacs_per_year, salary_by_vac,
                         count_by_vac, salary_by_city, city_percents)
         report.create_xlsx_file()
