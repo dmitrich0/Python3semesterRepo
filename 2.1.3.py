@@ -10,6 +10,18 @@ import pdfkit
 
 
 class Vacancy:
+    """
+    Класс для представления вакансии
+
+    Attributes:
+        name (str): Название
+        salary_from (int): Нижняя граница вилки оклада
+        salary_to (int): Верхняя граница вилки оклада
+        salary_currency (str): Валюта оклада
+        salary_average (float): Средняя зарплата
+        area_name (str): Место, где есть вакансия
+        year (int): Год создания вакансии
+    """
     currency_to_rub = {
         "AZN": 35.68,
         "BYR": 23.91,
@@ -23,7 +35,13 @@ class Vacancy:
         "UZS": 0.0055,
     }
 
-    def __init__(self, vacancy):
+    def __init__(self, vacancy: dict[str, str]) -> None:
+        """
+        Инициализирует объект Vacancy, выполняет конвертацию для некоторых полей, считает среднюю зарплату
+
+        :param vacancy: Словарь вакансии вида [str, str]
+        :returns: None
+        """
         self.name = vacancy['name']
         self.salary_from = int(float(vacancy['salary_from']))
         self.salary_to = int(float(vacancy['salary_to']))
@@ -34,25 +52,55 @@ class Vacancy:
 
 
 class DataSet:
-    def __init__(self, file, vacancy):
+    """
+    Класс для представления данных
+
+    Attributes:
+        file_name (str): Название файла
+        vacancy_name (str): Название вакансии
+    """
+    def __init__(self, file: str, vacancy: str) -> None:
+        """
+        Инициализирует объект Dataset
+
+        :param file: Название файла
+        :param vacancy: Название вакансии
+        """
         self.file_name = file
         self.vacancy_name = vacancy
 
     @staticmethod
-    def increment(subject, key, value):
+    def increment(subject: dict, key, value) -> None:
+        """
+        Если в subject есть значение с ключом key: увеличивает его на value, иначе: присваивает ему значение value
+
+        :param subject: Словарь объектов
+        :param key: Ключ для поиска элемента
+        :param value: Значение для инкремента или присваивания
+        :return:
+        """
         if key in subject:
             subject[key] += value
         else:
             subject[key] = value
 
     @staticmethod
-    def get_average_dict(data):
+    def get_average_dict(data) -> dict:
+        """
+        Создаёт новый словарь из данного, где элементы - среднее значение
+
+        :param data: Словарь с данными
+        :return: Массив средних
+        """
         result = {}
         for key, data in data.items():
             result[key] = int(sum(data) / len(data))
         return result
 
-    def csv_reader(self):
+    def csv_reader(self) -> dict:
+        """
+        Открывает файл и лениво возвращает словари с данными вакансии
+        """
         with open(self.file_name, mode='r', encoding='utf-8-sig') as file:
             reader = csv.reader(file)
             titles = next(reader)
@@ -61,7 +109,14 @@ class DataSet:
                 if '' not in row and len(row) == titles_count:
                     yield dict(zip(titles, row))
 
-    def get_statistics(self):
+    def get_statistics(self) -> (dict, dict, dict, dict, dict, dict):
+        """
+        Формирует статистику по вакансиям и возвращает кортеж с данными
+
+        :returns (stat_salary, vacancies_number, stat_salary_by_vac, vacs_per_name, stat_salary_by_city,
+         top_salary_by_year): Статистика по зп, статистика по числу вакансий, статистика вакансий по ЗП,
+         статистика вакансий по названию, статистика вакансий по городам
+        """
         salary = {}
         salary_of_vacancy_name = {}
         salary_city = {}
@@ -97,7 +152,19 @@ class DataSet:
         return stat_salary, vacancies_number, stat_salary_by_vac, vacs_per_name, stat_salary_by_city, top_salary_by_year
 
     @staticmethod
-    def print_statistic(salary_by_year, vacs_per_year, salary_by_vac, count_by_vac, salary_by_city, city_percents):
+    def print_statistic(salary_by_year, vacs_per_year, salary_by_vac, count_by_vac, salary_by_city, city_percents) -> \
+            None:
+        """
+        Печатает статистику
+
+        :param salary_by_year: Статистика зарплат по годам
+        :param vacs_per_year: Статистика количества вакансий по годам
+        :param salary_by_vac: Статистика зарплаты по годам для выбранной профессии
+        :param count_by_vac: Статистика количества вакансий по годам для выбранной профессии
+        :param salary_by_city: Статистика зарплаты по городам
+        :param city_percents: Статистика доли вакансий по городам
+        :return: None
+        """
         print(f'Динамика уровня зарплат по годам: {salary_by_year}')
         print(f'Динамика количества вакансий по годам: {vacs_per_year}')
         print(f'Динамика уровня зарплат по годам для выбранной профессии: {salary_by_vac}')
@@ -107,6 +174,13 @@ class DataSet:
 
 
 class InputConnect:
+    """
+    Работает с вводом пользователя, составляет датасет, создаёт файлы отчетов: XLSX, png, pdf
+
+    Attributes:
+        file_name (str): Название файла
+        vacancy_name (str): Название профессии
+    """
     def __init__(self):
         self.file_name = input('Введите название файла: ')
         self.vacancy_name = input('Введите название профессии: ')
@@ -121,8 +195,32 @@ class InputConnect:
 
 
 class Report:
+    """
+    Генерирует отчеты XLSX,  PNG, PDF
+
+    Attributes:
+        wb (Workbook): XLSX файл
+        vacancy_name (str): Название вакансии
+        salary_by_year (dict): Статистика зарплат по годам
+        vacs_per_year (dict): Статистика количества вакансий по годам
+        salary_by_vac (dict): Статистика зарплаты по годам для выбранной профессии
+        count_by_vac (dict): Статистика количества вакансий по годам для выбранной профессии
+        salary_by_city (dict): Статистика зарплаты по городам
+        city_percents (dict): Статистика доли вакансий по городам
+    """
     def __init__(self, vacancy_name, salary_by_year, vacs_per_year, salary_by_vac,
                  count_by_vac, salary_by_city, city_percents):
+        """
+        Инициализирует объект отчёта и XLSX файл
+
+        :param vacancy_name: Название вакансии
+        :param salary_by_year: Статистика зарплат по годам
+        :param vacs_per_year: Статистика количества вакансий по годам
+        :param salary_by_vac: Статистика зарплаты по годам для выбранной профессии
+        :param count_by_vac: Статистика количества вакансий по годам для выбранной профессии
+        :param salary_by_city: Статистика зарплаты по городам
+        :param city_percents: Статистика доли вакансий по городам
+        """
         self.wb = Workbook()
         self.vacancy_name = vacancy_name
         self.salary_by_year = salary_by_year
@@ -132,7 +230,12 @@ class Report:
         self.salary_by_city = salary_by_city
         self.city_percents = city_percents
 
-    def create_xlsx_file(self):
+    def create_xlsx_file(self) -> None:
+        """
+        Создаёт XLSX файл-отчёт
+
+        :return: None
+        """
         year_sheet = self.wb.active
         year_sheet.title = 'Статистика по годам'
         year_sheet.append(['Год', 'Средняя зарплата', 'Средняя зарплата - ' + self.vacancy_name,
@@ -184,7 +287,11 @@ class Report:
                 year_sheet[col + str(row + 1)].border = Border(left=thin, bottom=thin, right=thin, top=thin)
         self.wb.save(filename='report.xlsx')
 
-    def generate_image(self):
+    def generate_image(self) -> None:
+        """
+        Генерирует PNG-изображение со статистикой
+        :return: None
+        """
         fig, ((ax_1, ax_2), (ax_3, ax_4)) = plt.subplots(nrows=2, ncols=2)
 
         bar1 = ax_1.bar(np.array(list(self.salary_by_year.keys())) - 0.4, self.salary_by_year.values(), width=0.4)
@@ -223,7 +330,11 @@ class Report:
         plt.tight_layout()
         plt.savefig('graph.png')
 
-    def generate_pdf(self):
+    def generate_pdf(self) -> None:
+        """
+        Генерирует PDF-файл со статистикой
+        :return: None
+        """
         env = Environment(loader=FileSystemLoader('./templates'))
         template = env.get_template("pdf_template.html")
         stats = []
@@ -234,7 +345,7 @@ class Report:
         for key in self.city_percents:
             self.city_percents[key] = round(self.city_percents[key] * 100, 2)
 
-        pdf_template = template\
+        pdf_template = template \
             .render({'name': self.vacancy_name, 'path': '{0}/{1}'
                     .format(pathlib.Path(__file__).parent.resolve(), 'graph.png'),
                      'stats': stats, 'stats2': self.salary_by_city, 'stats3': self.city_percents})
