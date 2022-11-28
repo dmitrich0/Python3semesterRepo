@@ -1,4 +1,6 @@
 import csv
+
+from line_profiler import LineProfiler
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Border, Side
@@ -7,6 +9,24 @@ import numpy as np
 from jinja2 import Environment, FileSystemLoader
 import pathlib
 import pdfkit
+import datetime
+from dateutil.parser import parse
+
+profiler = LineProfiler()
+
+
+class Helper:
+    @staticmethod
+    def parse_year_from_date_slice(date: str) -> int:
+        return int(date[:4])
+
+    @staticmethod
+    def parse_year_from_date_datetime(date: str) -> int:
+        return datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S%z').year
+
+    @staticmethod
+    def parse_year_from_date_dateutil(date: str) -> int:
+        return parse(date).year
 
 
 class Vacancy:
@@ -35,6 +55,7 @@ class Vacancy:
         "UZS": 0.0055,
     }
 
+    @profile
     def __init__(self, vacancy: dict[str, str]) -> None:
         """
         Инициализирует объект Vacancy, выполняет конвертацию для некоторых полей, считает среднюю зарплату
@@ -48,7 +69,9 @@ class Vacancy:
         self.salary_currency = vacancy['salary_currency']
         self.salary_average = self.currency_to_rub[self.salary_currency] * (self.salary_from + self.salary_to) / 2
         self.area_name = vacancy['area_name']
-        self.year = int(vacancy['published_at'][:4])
+        self.year = Helper.parse_year_from_date_slice(vacancy['published_at'])
+        # self.year = Helper.parse_year_from_date_datetime(vacancy['published_at'])
+        # self.year = Helper.parse_year_from_date_dateutil(vacancy['published_at'])
 
 
 class DataSet:
@@ -59,6 +82,8 @@ class DataSet:
         file_name (str): Название файла
         vacancy_name (str): Название вакансии
     """
+
+    @profile
     def __init__(self, file: str, vacancy: str) -> None:
         """
         Инициализирует объект Dataset
@@ -77,6 +102,7 @@ class DataSet:
         self.vacancy_name = vacancy
 
     @staticmethod
+    @profile
     def increment(subject: dict, key, value) -> None:
         """
         Если в subject есть значение с ключом key: увеличивает его на value, иначе: присваивает ему значение value
@@ -92,6 +118,7 @@ class DataSet:
             subject[key] = value
 
     @staticmethod
+    @profile
     def get_average_dict(data: dict) -> dict:
         """
         Создаёт новый словарь из данного, где элементы - среднее значение
@@ -107,6 +134,7 @@ class DataSet:
             result[key] = int(sum(data) / len(data))
         return result
 
+    @profile
     def csv_reader(self) -> dict:
         """
         Открывает файл и лениво возвращает словари с данными вакансии
@@ -119,6 +147,7 @@ class DataSet:
                 if '' not in row and len(row) == titles_count:
                     yield dict(zip(titles, row))
 
+    @profile
     def get_statistics(self) -> (dict, dict, dict, dict, dict, dict):
         """
         Формирует статистику по вакансиям и возвращает кортеж с данными
@@ -162,6 +191,7 @@ class DataSet:
         return stat_salary, vacancies_number, stat_salary_by_vac, vacs_per_name, stat_salary_by_city, top_salary_by_year
 
     @staticmethod
+    @profile
     def print_statistic(salary_by_year: dict, vacs_per_year: dict, salary_by_vac: dict, count_by_vac: dict,
                         salary_by_city: dict, city_percents: dict) -> None:
         """
@@ -191,6 +221,8 @@ class InputConnect:
         file_name (str): Название файла
         vacancy_name (str): Название профессии
     """
+
+    @profile
     def __init__(self):
         self.file_name = input('Введите название файла: ')
         self.vacancy_name = input('Введите название профессии: ')
@@ -218,6 +250,8 @@ class Report:
         salary_by_city (dict): Статистика зарплаты по городам
         city_percents (dict): Статистика доли вакансий по городам
     """
+
+    @profile
     def __init__(self, vacancy_name: str, salary_by_year: dict, vacs_per_year: dict, salary_by_vac: dict,
                  count_by_vac: dict, salary_by_city: dict, city_percents: dict) -> None:
         """
@@ -241,6 +275,7 @@ class Report:
         self.salary_by_city = salary_by_city
         self.city_percents = city_percents
 
+    @profile
     def create_xlsx_file(self) -> None:
         """
         Создаёт XLSX файл-отчёт
@@ -298,6 +333,7 @@ class Report:
                 year_sheet[col + str(row + 1)].border = Border(left=thin, bottom=thin, right=thin, top=thin)
         self.wb.save(filename='report.xlsx')
 
+    @profile
     def generate_image(self) -> None:
         """
         Генерирует PNG-изображение со статистикой
@@ -341,6 +377,7 @@ class Report:
         plt.tight_layout()
         plt.savefig('graph.png')
 
+    @profile
     def generate_pdf(self) -> None:
         """
         Генерирует PDF-файл со статистикой
