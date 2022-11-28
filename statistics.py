@@ -65,6 +65,13 @@ class DataSet:
 
         :param file: Название файла
         :param vacancy: Название вакансии
+
+        >>> type(DataSet("123.csv", "Программист")).__name__
+        'DataSet'
+        >>> type(DataSet("123.csv", "Программист").file_name).__name__
+        'str'
+        >>> type(DataSet("123.csv", "Программист").vacancy_name).__name__
+        'str'
         """
         self.file_name = file
         self.vacancy_name = vacancy
@@ -91,6 +98,9 @@ class DataSet:
 
         :param data: Словарь с данными
         :return: Массив средних
+
+        >>> DataSet.get_average_dict({1: [2, 5], 2: [3, 6]})
+        {1: 3, 2: 4}
         """
         result = {}
         for key, data in data.items():
