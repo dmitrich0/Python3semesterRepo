@@ -85,7 +85,7 @@ class DataSet:
             subject[key] = value
 
     @staticmethod
-    def get_average_dict(data) -> dict:
+    def get_average_dict(data: dict) -> dict:
         """
         Создаёт новый словарь из данного, где элементы - среднее значение
 
@@ -152,8 +152,8 @@ class DataSet:
         return stat_salary, vacancies_number, stat_salary_by_vac, vacs_per_name, stat_salary_by_city, top_salary_by_year
 
     @staticmethod
-    def print_statistic(salary_by_year, vacs_per_year, salary_by_vac, count_by_vac, salary_by_city, city_percents) -> \
-            None:
+    def print_statistic(salary_by_year: dict, vacs_per_year: dict, salary_by_vac: dict, count_by_vac: dict,
+                        salary_by_city: dict, city_percents: dict) -> None:
         """
         Печатает статистику
 
@@ -208,8 +208,8 @@ class Report:
         salary_by_city (dict): Статистика зарплаты по городам
         city_percents (dict): Статистика доли вакансий по городам
     """
-    def __init__(self, vacancy_name, salary_by_year, vacs_per_year, salary_by_vac,
-                 count_by_vac, salary_by_city, city_percents):
+    def __init__(self, vacancy_name: str, salary_by_year: dict, vacs_per_year: dict, salary_by_vac: dict,
+                 count_by_vac: dict, salary_by_city: dict, city_percents: dict):
         """
         Инициализирует объект отчёта и XLSX файл
 
