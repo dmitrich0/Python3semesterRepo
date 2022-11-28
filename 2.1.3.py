@@ -77,7 +77,7 @@ class DataSet:
         :param subject: Словарь объектов
         :param key: Ключ для поиска элемента
         :param value: Значение для инкремента или присваивания
-        :return:
+        :return: None
         """
         if key in subject:
             subject[key] += value
@@ -209,7 +209,7 @@ class Report:
         city_percents (dict): Статистика доли вакансий по городам
     """
     def __init__(self, vacancy_name: str, salary_by_year: dict, vacs_per_year: dict, salary_by_vac: dict,
-                 count_by_vac: dict, salary_by_city: dict, city_percents: dict):
+                 count_by_vac: dict, salary_by_city: dict, city_percents: dict) -> None:
         """
         Инициализирует объект отчёта и XLSX файл
 
@@ -220,6 +220,7 @@ class Report:
         :param count_by_vac: Статистика количества вакансий по годам для выбранной профессии
         :param salary_by_city: Статистика зарплаты по городам
         :param city_percents: Статистика доли вакансий по городам
+        :return: None
         """
         self.wb = Workbook()
         self.vacancy_name = vacancy_name
