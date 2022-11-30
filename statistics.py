@@ -1,6 +1,5 @@
 import csv
 
-from line_profiler import LineProfiler
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, Border, Side
@@ -11,22 +10,7 @@ import pathlib
 import pdfkit
 import datetime
 from dateutil.parser import parse
-
-profiler = LineProfiler()
-
-
-class Helper:
-    @staticmethod
-    def parse_year_from_date_slice(date: str) -> int:
-        return int(date[:4])
-
-    @staticmethod
-    def parse_year_from_date_datetime(date: str) -> int:
-        return datetime.datetime.strptime(date, '%Y-%m-%dT%H:%M:%S%z').year
-
-    @staticmethod
-    def parse_year_from_date_dateutil(date: str) -> int:
-        return parse(date).year
+import Helpers.Helper as Helper
 
 
 class Vacancy:
@@ -68,7 +52,7 @@ class Vacancy:
         self.salary_currency = vacancy['salary_currency']
         self.salary_average = self.currency_to_rub[self.salary_currency] * (self.salary_from + self.salary_to) / 2
         self.area_name = vacancy['area_name']
-        self.year = Helper.parse_year_from_date_slice(vacancy['published_at'])
+        self.year = Helper.Helper.parse_year_from_date_slice(vacancy['published_at'])
         # self.year = Helper.parse_year_from_date_datetime(vacancy['published_at'])
         # self.year = Helper.parse_year_from_date_dateutil(vacancy['published_at'])
 
