@@ -42,7 +42,7 @@ class ProcessSalaries:
         df.drop(labels=to_delete, axis=0, inplace=True)
         df.drop(labels=['salary_to', 'salary_from', 'salary_currency'], axis=1, inplace=True)
         df['salary'] = salaries
-        df.to_csv('1.csv')
+        df.head(100).to_csv('top100.csv')
 
 
 a = ProcessSalaries('../vacancies_dif_currencies.csv').process_salaries()
