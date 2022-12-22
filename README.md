@@ -1,0 +1,2 @@
+# Python3semesterRepo
+Смотреть Helpers/ProcessSalariesToRubPANDAS.py
